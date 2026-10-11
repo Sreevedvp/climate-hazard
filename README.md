@@ -140,3 +140,4 @@ Seasonally varying percentile thresholds with independent scientific validation;
 
 Select a city and dates on `/`, then Analyze opens `/analyses/:id` with a loader while the server works. Episode details have their own `/analyses/:id/episodes` page. Back/Forward and refresh retain the form draft, selected city, chart metric, expanded annual table and episode page. Zustand persists small selections for up to 20 analyses; TanStack Query caches server data, and MongoDB restores results after refresh. See the page-state section in `docs/SYSTEM-DESIGN.md` for cleanup and persistence details.
 # climate-hazard
+# climate-hazard

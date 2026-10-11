@@ -1,0 +1,1 @@
+{"name":"climate-local-tools","private":true,"type":"module","scripts":{"db":"node scripts/database.mjs"},"devDependencies":{"mongodb-memory-server":"^10.1.4"}}

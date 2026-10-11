@@ -1,0 +1,261 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #203136;
+  background: #f5f7f7;
+  font-synthesis: none;
+  line-height: 1.6;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 1120px;
+  margin: auto;
+  padding: 32px 20px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: start;
+}
+h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+h2 {
+  font-size: 1.25rem;
+}
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: #426b72;
+}
+section {
+  background: white;
+  border: 1px solid #d6dfe0;
+  border-radius: 8px;
+  padding: 24px;
+  margin: 24px 0;
+}
+label {
+  display: block;
+  font-weight: 600;
+}
+input,
+select,
+button {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid #93aaae;
+  border-radius: 4px;
+}
+input,
+select {
+  display: block;
+  width: 100%;
+  background: white;
+}
+input:focus,
+button:focus,
+select:focus,
+a:focus {
+  outline: 3px solid #98cbd4;
+  outline-offset: 2px;
+}
+button {
+  cursor: pointer;
+  background: #f0f6f6;
+  color: #173d45;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.primary {
+  background: #245d68;
+  color: white;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+.error,
+[role="alert"] {
+  color: #9b2e1c;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.stats article {
+  padding: 16px;
+  background: #f3f7f7;
+}
+.stats strong,
+.stats span {
+  display: block;
+}
+.stats strong {
+  font-size: 1.5rem;
+}
+.stats span {
+  font-size: 0.85rem;
+}
+.insight {
+  border-left: 4px solid #286978;
+  padding: 12px 16px;
+  background: #f3f7f7;
+}
+.chart {
+  height: 340px;
+  margin: 20px 0;
+}
+.table-scroll {
+  overflow: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #d6dfe0;
+  white-space: nowrap;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+a {
+  color: #245d68;
+}
+footer {
+  font-size: 0.85rem;
+  color: #52696e;
+}
+summary {
+  cursor: pointer;
+}
+@media (max-width: 700px) {
+  header {
+    display: block;
+  }
+  .form-grid,
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  section {
+    padding: 16px;
+  }
+  main {
+    padding: 20px 12px;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ddd;
+  border-top-color: #286978;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
+.city-picker {
+  position: relative;
+}
+.city-input {
+  position: relative;
+}
+.city-input input {
+  padding-right: 48px;
+}
+.city-clear {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  padding: 3px 12px;
+  font-size: 1.3rem;
+}
+.city-dropdown {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #93aaae;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px #20313633;
+}
+.city-dropdown p {
+  margin: 0;
+  padding: 12px;
+}
+.city-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.city-dropdown li {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.city-dropdown li[aria-selected="true"] {
+  background: #dceef1;
+  outline: 1px solid #286978;
+  outline-offset: -1px;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2324515b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+@media (forced-colors: active) {
+  select {
+    appearance: auto;
+    background-image: none;
+  }
+}
