@@ -452,12 +452,12 @@ function SelectionPage() {
               />
               <span className="error">{errors.end_year?.message}</span>
             </label>
-            <label>
+            {/* <label>
               Hazard
               <select aria-label="Hazard" defaultValue="heatwave">
                 <option value="heatwave">Heatwave</option>
               </select>
-            </label>
+            </label> */}
           </div>
           <p>
             Definition: at least 3 consecutive days strictly above the fixed
