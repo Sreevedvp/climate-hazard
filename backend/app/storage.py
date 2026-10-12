@@ -41,6 +41,15 @@ class Repository:
         job = await self.db.analyses.find_one_and_update({'$or': [{'status': 'queued'}, {'status': 'processing', 'lease_until': {'$lt': now()}}]}, {'$set': {'status': 'processing', 'lease_token': token, 'lease_until': now()+timedelta(seconds=90)}, '$inc': {'attempts': 1}}, sort=[('created_at', 1)], return_document=ReturnDocument.AFTER)
         return job
 
+    async def claim_specific(self, key):
+        """Claim a specific job by key — used for inline serverless processing."""
+        token = uuid.uuid4().hex
+        return await self.db.analyses.find_one_and_update(
+            {'_id': key, 'status': 'queued'},
+            {'$set': {'status': 'processing', 'lease_token': token, 'lease_until': now()+timedelta(seconds=300)}, '$inc': {'attempts': 1}},
+            return_document=ReturnDocument.AFTER
+        )
+
 class Worker:
     def __init__(self, repository: Repository, provider: WeatherProvider):
         self.repository, self.provider = repository, provider

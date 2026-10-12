@@ -1,6 +1,7 @@
 import asyncio
 import csv
 import io
+import logging
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, Request
@@ -14,12 +15,21 @@ from .provider import WeatherProvider, ProviderError
 from .cache import Cache
 from .middleware import BodyLimitMiddleware
 
+IS_SERVERLESS = bool(os.getenv('VERCEL') or os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
+INLINE_PROCESSING = os.getenv('INLINE_PROCESSING', 'false').lower() == 'true' or IS_SERVERLESS
+
 @asynccontextmanager
 async def lifespan(app):
     repository, provider, cache = Repository(), WeatherProvider(), Cache()
-    await repository.start()
+    try:
+        await repository.start()
+    except Exception:
+        # In serverless cold starts the first ping may fail; endpoints will
+        # lazily retry via pymongo's built-in reconnection logic.
+        logging.warning('MongoDB startup ping/index creation deferred')
     app.state.repository, app.state.provider, app.state.cache = repository, provider, cache
-    task = asyncio.create_task(Worker(repository, provider).run()) if os.getenv('EMBEDDED_WORKER', 'true') == 'true' else None
+    start_worker = os.getenv('EMBEDDED_WORKER', 'true') == 'true' and not IS_SERVERLESS
+    task = asyncio.create_task(Worker(repository, provider).run()) if start_worker else None
     try:
         yield
     finally:
@@ -78,7 +88,15 @@ async def create_analysis(body: AnalysisRequest, request: Request):
     repository = request.app.state.repository
     if not await repository.get(body.key) and await repository.db.analyses.count_documents({'status': {'$in': ['queued', 'processing']}}) >= 100:
         raise HTTPException(503, 'Analysis queue is full; please retry later', headers={'Retry-After': '60'})
-    return view(await repository.submit(body))
+    job = await repository.submit(body)
+    # In serverless mode, process inline since there is no background worker.
+    if INLINE_PROCESSING and job['status'] == 'queued':
+        claimed = await repository.claim_specific(body.key)
+        if claimed:
+            worker = Worker(repository, request.app.state.provider)
+            await worker.process(claimed)
+            job = await repository.get(body.key)
+    return view(job)
 
 async def find_job(request, analysis_id):
     import re

@@ -13,7 +13,8 @@ export async function api<T>(
   init: RequestInit = {},
   signal?: AbortSignal,
 ): Promise<T> {
-  const response = await fetch(`/api${path}`, {
+  const BASE = import.meta.env.VITE_API_URL || '';
+  const response = await fetch(`${BASE}/api${path}`, {
     ...init,
     signal,
     headers: { "Content-Type": "application/json", ...init.headers },
