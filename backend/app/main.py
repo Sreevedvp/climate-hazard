@@ -14,19 +14,24 @@ from .storage import Repository, Worker
 from .provider import WeatherProvider, ProviderError
 from .cache import Cache
 from .middleware import BodyLimitMiddleware
+from .database_diagnostics import log_database_failure
 
 IS_SERVERLESS = bool(os.getenv('VERCEL') or os.getenv('AWS_LAMBDA_FUNCTION_NAME'))
 INLINE_PROCESSING = os.getenv('INLINE_PROCESSING', 'false').lower() == 'true' or IS_SERVERLESS
 
 @asynccontextmanager
 async def lifespan(app):
-    repository, provider, cache = Repository(), WeatherProvider(), Cache()
+    try:
+        repository = Repository()
+    except Exception as exc:
+        log_database_failure('configuration', exc)
+        raise
+    provider, cache = WeatherProvider(), Cache()
     try:
         await repository.start()
-    except Exception:
-        # In serverless cold starts the first ping may fail; endpoints will
-        # lazily retry via pymongo's built-in reconnection logic.
-        logging.warning('MongoDB startup ping/index creation deferred')
+    except Exception as exc:
+        # Database requests can reconnect later; report why startup failed.
+        log_database_failure('startup_ping_or_indexes', exc)
     app.state.repository, app.state.provider, app.state.cache = repository, provider, cache
     start_worker = os.getenv('EMBEDDED_WORKER', 'true') == 'true' and not IS_SERVERLESS
     task = asyncio.create_task(Worker(repository, provider).run()) if start_worker else None
@@ -48,6 +53,7 @@ app.add_middleware(BodyLimitMiddleware)
 
 @app.exception_handler(PyMongoError)
 async def database_error(_request, _exc):
+    log_database_failure('request', _exc)
     from fastapi.responses import JSONResponse
     return JSONResponse({'detail': 'Database temporarily unavailable'}, status_code=503)
 
